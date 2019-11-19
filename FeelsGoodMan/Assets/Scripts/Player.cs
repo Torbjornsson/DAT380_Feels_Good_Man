@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     public float thrust, distance;
     public GameObject weapon;
-    private Vector3 mouse, player, dir;
+    private Vector3 mousePos, playerPos, dir;
     private float angle;
     void Start()
     {
@@ -17,15 +17,15 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        mouse = Input.mousePosition;
-        mouse = Camera.main.ScreenToWorldPoint(mouse);
-        mouse.z = 0;
-        player = gameObject.transform.position;
+        mousePos= Input.mousePosition;
+        mousePos= Camera.main.ScreenToWorldPoint(mousePos);
+        mousePos.z = 0;
+        playerPos = gameObject.transform.position;
 
-        dir = Vector3.Normalize(mouse - player);
+        dir = Vector3.Normalize(mousePos- playerPos);
         angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         
-        weapon.transform.position = player + dir;
+        weapon.transform.position = playerPos + dir;
         weapon.transform.rotation = Quaternion.Euler(new Vector3(0,0,angle-90));
 
         if (Input.GetKey("d"))
