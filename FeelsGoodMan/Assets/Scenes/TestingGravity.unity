@@ -810,6 +810,7 @@ MonoBehaviour:
   sprintAcceleration: 6
   jumpThrust: 1
   weapon: {fileID: 795919101}
+  lives: 3
   mass: 10
   massObjects:
   - {fileID: 0}

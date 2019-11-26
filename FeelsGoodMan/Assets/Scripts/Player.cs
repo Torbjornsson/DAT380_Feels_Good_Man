@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class Player : MonoBehaviour
     private const double gravity_constant = 0.05; //actually 6.67430e-11
     public float sprintAcceleration, jumpThrust;
     public Weapon weapon;
+    public int lives;
     private Vector3 mousePos, playerPos, dir;
     private float angle;
     public double mass = 10;
@@ -65,13 +67,7 @@ public class Player : MonoBehaviour
                 break;
 
             case TouchMode.instant_death:
-                Debug.Log("Quitting!");
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPaused = true;
-                UnityEditor.EditorApplication.isPlaying = false;
-#else
-                Application.Quit();
-#endif
+                Death();
                 break;
         }
 
@@ -139,5 +135,23 @@ public class Player : MonoBehaviour
         touchMode = TouchMode.none;    
     }
 
+    void Death()
+    {
+        lives--;
+        if (lives > 0)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+        else
+        {
+        Debug.Log("Quitting!");
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPaused = true;
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+        }
+    }
 
 }
