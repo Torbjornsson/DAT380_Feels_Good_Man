@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/TestingGravity.unity
+    guid: 15ee08f73c8ae5602a5622bfdddacc6d
+  - enabled: 1
+    path: Assets/Scenes/Level2.unity
+    guid: 6af531d6a47a338f6b5099ca8ec52fbd
+  - enabled: 1
+    path: Assets/Scenes/Level3.unity
+    guid: d756925c757db0879989dd40be6c57b1
   m_configObjects: {}
