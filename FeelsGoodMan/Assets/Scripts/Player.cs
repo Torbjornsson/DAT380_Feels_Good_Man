@@ -143,6 +143,7 @@ public class Player : MonoBehaviour
         if (lives > 0)
         {
             transform.position = GameObject.Find("RespawnPoint").transform.position;
+            weapon.Reset();
             GameObject.Find("Text").GetComponent<UnityEngine.UI.Text>().text = "Lives: " + lives.ToString();
         }
         else

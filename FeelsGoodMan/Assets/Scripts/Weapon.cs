@@ -49,5 +49,9 @@ public class Weapon : MonoBehaviour
         return firing;
     }
 
+    public void Reset()
+    {
+        cooldown = 0;
+    }
 
 }
