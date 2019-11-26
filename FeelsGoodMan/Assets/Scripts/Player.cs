@@ -7,18 +7,21 @@ public class Player : MonoBehaviour
 {
     // Start is called before the first frame update
     private const double gravity_constant = 0.05; //actually 6.67430e-11
-    public float sprintAcceleration, jumpThrust;
+    public float sprintAcceleration, jumpThrust, arrowDistance;
     public Weapon weapon;
     public int lives;
     private Vector3 mousePos, playerPos, dir;
     private float angle;
     public double mass = 10;
-    public MassObject[] massObjects;
+    private MassObject[] massObjects;
     private TouchMode touchMode;
     private Rigidbody rb;
+    public GameObject arrow;
 
     private const float air_resistance = 0.1f;
     private float surface_resistance = 0.1f;
+    private float timer = 1.0f;
+    private bool paused = false;
 
     private enum TouchMode
     {
@@ -28,12 +31,10 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        touchMode = TouchMode.none;
         GameObject.Find("Text").GetComponent<UnityEngine.UI.Text>().text = "Lives: " + lives.ToString();
         GameObject.Find("RespawnPoint").transform.position = transform.position;
-        if (massObjects == null)
-        {
-            massObjects = GameObject.FindObjectsOfType<MassObject>();
-        }
+        massObjects = GameObject.FindObjectsOfType<MassObject>();
 
         if (rb == null) 
         {
@@ -44,6 +45,19 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (paused) {
+            timer -= Time.deltaTime;
+            if (timer <= 0) {
+                paused = false;
+                timer = 1.0f;
+                touchMode = TouchMode.none;
+                Death();
+                rb.WakeUp();
+            } else {
+                return;
+            }
+        }
+
         mousePos= Input.mousePosition;
         mousePos= Camera.main.ScreenToWorldPoint(mousePos);
         mousePos.z = 0;
@@ -55,6 +69,13 @@ public class Player : MonoBehaviour
         weapon.transform.position = playerPos + dir;
         weapon.transform.rotation = Quaternion.Euler(new Vector3(0,0,angle-90));
         weapon.dir = dir;
+
+        if (arrow) {
+            dir = GameObject.Find("Goal").transform.position - playerPos;
+            arrow.transform.position = playerPos + Vector3.Normalize(dir) * arrowDistance;
+            angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            arrow.transform.rotation = Quaternion.Euler(new Vector3(0,0,angle + 90));
+        }
 
         ApplyAirResistance();
         switch (touchMode)
@@ -69,7 +90,8 @@ public class Player : MonoBehaviour
                 break;
 
             case TouchMode.instant_death:
-                Death();
+                paused = true;
+                rb.Sleep();
                 break;
         }
 
@@ -110,13 +132,14 @@ public class Player : MonoBehaviour
 
     private void ApplyGravity()
     {
-        foreach (MassObject obj in massObjects)
-        {
-            Vector3 v = obj.transform.position - gameObject.transform.position;
-            double d = v.magnitude;
-            double g = gravity_constant * mass * obj.mass / (d * d);
-            rb.AddForce(v.normalized * (float)g);
-        }
+        if (massObjects != null && massObjects.Length > 0)
+            foreach (MassObject obj in massObjects)
+            {
+                Vector3 v = obj.transform.position - gameObject.transform.position;
+                double d = v.magnitude;
+                double g = gravity_constant * mass * obj.mass / (d * d);
+                rb.AddForce(v.normalized * (float)g);
+            }
     }
 
     void OnCollisionEnter(Collision collision)
@@ -162,5 +185,4 @@ public class Player : MonoBehaviour
 #endif
         }
     }
-
 }
