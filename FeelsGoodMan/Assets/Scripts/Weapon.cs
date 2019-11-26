@@ -28,6 +28,7 @@ public class Weapon : MonoBehaviour
             cooldown -= Time.deltaTime;
             if (cooldown <= 0)
             {
+                GetComponentInChildren<ParticleSystem>().Play();
                 cooldown += reload;
                 player.gameObject.GetComponent<Rigidbody>().velocity += -Vector3.Normalize(dir) * recoil;
             }
