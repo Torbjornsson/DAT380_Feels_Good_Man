@@ -74,7 +74,10 @@ public class Player : MonoBehaviour
         }
 
         weapon.SetFiring(Input.GetMouseButton(0));
-
+        if (Input.GetKey("r"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
 
     }
 
