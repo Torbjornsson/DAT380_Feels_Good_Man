@@ -28,6 +28,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        GameObject.Find("Text").GetComponent<UnityEngine.UI.Text>().text = "Lives: " + lives.ToString();
         if (massObjects == null)
         {
             massObjects = GameObject.FindObjectsOfType<MassObject>();
@@ -140,7 +141,8 @@ public class Player : MonoBehaviour
         lives--;
         if (lives > 0)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            transform.position = GameObject.Find("RespawnPoint").transform.position;
+            GameObject.Find("Text").GetComponent<UnityEngine.UI.Text>().text = "Lives: " + lives.ToString();
         }
         else
         {
