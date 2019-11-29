@@ -24,6 +24,8 @@ public class Player : MonoBehaviour
     private float timer = 1.0f;
     private bool paused = false;
 
+    private const double espilon = 0.0001;
+
     private enum TouchMode
     {
         none, platform, instant_death
@@ -117,12 +119,9 @@ public class Player : MonoBehaviour
     {
         //Normal force: N = m*g
         //Kinetic friction: Kinetic friction force = kinetic friction coefficient * normal force
-        //Static friction: Maximum static friction force = static friction coefficient * normal force
-
-        //Apply static friction:
-        rb.velocity -= Mathf.Min(rb.velocity.magnitude, Time.deltaTime * static_friction_coefficient) * rb.velocity.normalized;
 
         //If moving, apply kinetic friction
+        //Should be multiplied by normal force, but we don't have sloping platforms at the moment, so we don't need it.
         if (rb.velocity.magnitude > 0) rb.velocity -= rb.velocity.normalized * Time.deltaTime * kinetic_friction_coefficient;
 
     }
