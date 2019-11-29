@@ -112,6 +112,8 @@ public class Player : MonoBehaviour
         //And the air density and drag coefficient are constant
         //We model these with an air_resistance constant.
         //Otherwise: Drag force = 1/2 * density * v^2 * drag coefficient * cross section area
+        //By dividing both sides with the mass, we are provided with the acceleration of the object.
+        // This is included in the air_resistance constant.
         rb.velocity -= rb.velocity * rb.velocity.magnitude * Time.deltaTime * air_resistance;
     }
 
