@@ -6,20 +6,21 @@ using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
     // Start is called before the first frame update
-    private const double gravity_constant = 0.05; //actually 6.67430e-11
+    // G is actually 6.67430e-11, but with 1 we can use small masses and distances for gravity objects.
+    private const double gravity_constant = 1.0; 
     public float sprintAcceleration, jumpThrust, arrowDistance;
     public Weapon weapon;
     public int lives;
     private Vector3 mousePos, playerPos, dir;
     private float angle;
-    public double mass = 10;
     private MassObject[] massObjects;
     private TouchMode touchMode;
     private Rigidbody rb;
     public GameObject arrow;
 
     private const float air_resistance = 0.1f;
-    private float surface_resistance = 0.1f;
+    private float kinetic_friction_coefficient = 0.1f;
+    private float static_friction_coefficient = 0.1f;
     private float timer = 1.0f;
     private bool paused = false;
 
@@ -105,12 +106,25 @@ public class Player : MonoBehaviour
 
     private void ApplyAirResistance()
     {
-        rb.velocity -= rb.velocity * Time.deltaTime * surface_resistance;
+        //Since the size and shape of the object remains unchanged
+        //And the air density and drag coefficient are constant
+        //We model these with an air_resistance constant.
+        //Otherwise: Drag force = 1/2 * density * v^2 * drag coefficient * cross section area
+        rb.velocity -= rb.velocity * rb.velocity.magnitude * Time.deltaTime * air_resistance;
     }
 
     private void ApplySurfaceResistance()
     {
-        rb.velocity -= rb.velocity * Time.deltaTime * air_resistance;
+        //Normal force: N = m*g
+        //Kinetic friction: Kinetic friction force = kinetic friction coefficient * normal force
+        //Static friction: Maximum static friction force = static friction coefficient * normal force
+
+        //Apply static friction:
+        rb.velocity -= Mathf.Min(rb.velocity.magnitude, Time.deltaTime * static_friction_coefficient) * rb.velocity.normalized;
+
+        //If moving, apply kinetic friction
+        if (rb.velocity.magnitude > 0) rb.velocity -= rb.velocity.normalized * Time.deltaTime * kinetic_friction_coefficient;
+
     }
 
     private void HandlePlatformMovement()
@@ -137,8 +151,12 @@ public class Player : MonoBehaviour
             {
                 Vector3 v = obj.transform.position - gameObject.transform.position;
                 double d = v.magnitude;
-                double g = gravity_constant * mass * obj.mass / (d * d);
-                rb.AddForce(v.normalized * (float)g);
+
+                //F=a*m <=> a = F/m. In this case a = G*m/(d^2)
+                //How to deal with d approaching 0? Could use max function with small constant for a lower cap.
+                //Also, what distance unit are we even using? Formula works regardless, but the constant changes.
+                double a_g = gravity_constant * obj.mass / (d * d);
+                rb.velocity += v.normalized * (float) a_g * Time.deltaTime;
             }
     }
 
@@ -148,7 +166,8 @@ public class Player : MonoBehaviour
         switch (tag)
         {
             case "Platform":
-                surface_resistance = collision.gameObject.GetComponent<PlatformResistance>().surface_resistance;
+                kinetic_friction_coefficient = collision.gameObject.GetComponent<PlatformResistance>().kinetic_friction_coefficient;
+                static_friction_coefficient = collision.gameObject.GetComponent<PlatformResistance>().static_friction_coefficient;
                 touchMode = TouchMode.platform;
                 break;
             case "Obstacle":

@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlatformResistance : MonoBehaviour
 {
 
-    public float surface_resistance = 0.1f;
+    public float kinetic_friction_coefficient = 0.1f;
+    public float static_friction_coefficient = 0.5f;
 
 }
